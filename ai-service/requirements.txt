@@ -8,4 +8,4 @@ langchain-text-splitters
 supabase
 python-dotenv
 scikit-learn
-openai
+google-genai
