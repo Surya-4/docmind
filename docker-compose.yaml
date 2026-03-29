@@ -1,0 +1,82 @@
+services:
+
+  postgres:
+    image: postgres:15
+    container_name: docmind-postgres
+    environment:
+      POSTGRES_USER: docmind
+      POSTGRES_PASSWORD: docmind123
+      POSTGRES_DB: docmind_db
+      TZ: Asia/Kolkata
+      PGTZ: Asia/Kolkata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - docmind-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: docmind-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - docmind-network
+
+  fastapi:
+    build: ./ai-service
+    container_name: docmind-fastapi
+    expose:
+      - "8000"
+    environment:
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_KEY: ${SUPABASE_KEY}
+      SPRING_BOOT_URL: http://spring-boot:8080
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - docmind-network
+
+  spring-boot:
+    build: ./backend
+    container_name: docmind-spring
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/docmind_db?TimeZone=Asia/Kolkata
+      DB_USERNAME: docmind
+      DB_PASSWORD: docmind123
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      FASTAPI_URL: http://fastapi:8000
+      JWT_SECRET: ${JWT_SECRET}
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_KEY: ${SUPABASE_KEY}
+      SUPABASE_BUCKET: docmind-pdfs
+    depends_on:
+      - postgres
+      - redis
+      - fastapi
+    networks:
+      - docmind-network
+
+  frontend:
+    build: ./frontend
+    container_name: docmind-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - spring-boot
+    networks:
+      - docmind-network
+
+networks:
+  docmind-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

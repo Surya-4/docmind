@@ -1,0 +1,21 @@
+# Environment files — never commit these
+.env
+*/.env
+backend/src/main/resources/application.properties
+
+# Build artifacts
+backend/target/
+frontend/node_modules/
+frontend/dist/
+ai-service/venv/
+ai-service/indexes/
+ai-service/__pycache__/
+**/__pycache__/
+*.pyc
+
+# IDE files
+.idea/
+*.iml
+.classpath
+.project
+.settings/

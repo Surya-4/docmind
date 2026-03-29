@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+pymupdf
+faiss-cpu
+numpy
+requests
+langchain-text-splitters
+supabase
+python-dotenv
+scikit-learn
+openai
