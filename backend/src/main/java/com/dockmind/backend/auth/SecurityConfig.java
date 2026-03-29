@@ -23,45 +23,45 @@ import java.util.List;
 public class SecurityConfig {
 	private final AuthFilter filter;
 	private final CustomUserDetailService customUserDetailService;
-	
+
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
-	
+
 	@Bean
 	public AuthenticationProvider authenticationProvider() {
-		DaoAuthenticationProvider provider=new DaoAuthenticationProvider(customUserDetailService);
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider(customUserDetailService);
 		provider.setPasswordEncoder(passwordEncoder());
 		return provider;
 	}
-	
+
 	@Bean
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
 		return configuration.getAuthenticationManager();
 	}
-	
+
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
-	    CorsConfiguration config = new CorsConfiguration();
-	    config.setAllowedOrigins(List.of("http://localhost:3000"));
-	    config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-	    config.setAllowedHeaders(List.of("*"));
-	    config.setAllowCredentials(true); // ← needed for JWT cookie
-	    
-	    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-	    source.registerCorsConfiguration("/**", config);
-	    return source;
+		CorsConfiguration config = new CorsConfiguration();
+		config.setAllowedOrigins(List.of("http://localhost:3000", "https://your-app.vercel.app"));
+		config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+		config.setAllowedHeaders(List.of("*"));
+		config.setAllowCredentials(true);
+
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", config);
+		return source;
 	}
-	
+
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http.cors(cors -> cors.configurationSource(corsConfigurationSource())).
-		csrf(csrf->csrf.disable()).
-		sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS)).
-		authorizeHttpRequests(auth -> auth.requestMatchers("/auth/**").permitAll().requestMatchers("/documents/*/status").permitAll().anyRequest().authenticated()).
-		authenticationProvider(authenticationProvider()).
-		addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
+		http.cors(cors -> cors.configurationSource(corsConfigurationSource())).csrf(csrf -> csrf.disable())
+				.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.authorizeHttpRequests(auth -> auth.requestMatchers("/auth/**").permitAll()
+						.requestMatchers("/documents/*/status").permitAll().anyRequest().authenticated())
+				.authenticationProvider(authenticationProvider())
+				.addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
 		return http.build();
 	}
 }
