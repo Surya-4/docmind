@@ -27,7 +27,7 @@ public class AuthController {
 		String token=authService.register(request);
 		ResponseCookie cookie=ResponseCookie.from("jwt", token).
 		secure(true).
-		domain("None").
+		sameSite("None").
 		httpOnly(true).
 		path("/").
 		maxAge(86400)
@@ -42,7 +42,7 @@ public class AuthController {
 		ResponseCookie cookie=ResponseCookie.from("jwt", token).
 		httpOnly(true).
 		secure(true).
-		domain("None").
+		sameSite("None").
 		path("/").
 		maxAge(86400).build();
 		response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
@@ -54,7 +54,7 @@ public class AuthController {
 		ResponseCookie cookie=ResponseCookie.from("jwt", "").
 				httpOnly(true).
 				secure(true).
-				domain("None").
+				sameSite("None").
 				path("/").
 				maxAge(0).build();
 		response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
