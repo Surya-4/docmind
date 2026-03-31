@@ -1,6 +1,8 @@
 package com.dockmind.backend.auth;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,32 +25,39 @@ public class AuthController {
 	@PostMapping("/register")
 	public ResponseEntity<String> register(@RequestBody AuthRequest request, HttpServletResponse response){
 		String token=authService.register(request);
-		Cookie cookie=new Cookie("jwt", token);
-		cookie.setHttpOnly(true);
-		cookie.setPath("/");
-		cookie.setMaxAge(86400);
-		response.addCookie(cookie);
+		ResponseCookie cookie=ResponseCookie.from("jwt", token).
+		secure(true).
+		domain("None").
+		httpOnly(true).
+		path("/").
+		maxAge(86400)
+		.build();
+		response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 		return ResponseEntity.status(HttpStatus.CREATED).body("Registration Successfull");
 	}
 	
 	@PostMapping("/login")
 	public ResponseEntity<String> login(@RequestBody AuthRequest request, HttpServletResponse response){
 		String token=authService.login(request);
-		Cookie cookie=new Cookie("jwt", token);
-		cookie.setHttpOnly(true);
-		cookie.setPath("/");
-		cookie.setMaxAge(86400);
-		response.addCookie(cookie);
+		ResponseCookie cookie=ResponseCookie.from("jwt", token).
+		httpOnly(true).
+		secure(true).
+		domain("None").
+		path("/").
+		maxAge(86400).build();
+		response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 		return ResponseEntity.status(HttpStatus.OK).body("Login Successfull");
 	}
 	
 	@PostMapping("/logout")
 	public ResponseEntity<String> logout(HttpServletResponse response){
-		Cookie cookie=new Cookie("jwt", "");
-		cookie.setMaxAge(0);
-		cookie.setHttpOnly(true);
-		cookie.setPath("/");
-		response.addCookie(cookie);
+		ResponseCookie cookie=ResponseCookie.from("jwt", "").
+				httpOnly(true).
+				secure(true).
+				domain("None").
+				path("/").
+				maxAge(0).build();
+		response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 		return ResponseEntity.ok("Logout Successfull");
 	}
 }
