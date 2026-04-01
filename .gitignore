@@ -1,7 +1,6 @@
 # Environment files — never commit these
 .env
 */.env
-backend/src/main/resources/application.properties
 
 # Build artifacts
 backend/target/
